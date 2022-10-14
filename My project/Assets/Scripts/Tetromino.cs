@@ -4,5 +4,128 @@ using UnityEngine;
 
 public class Tetromino : MonoBehaviour
 {
-   
+    #region Feilds
+    static Transform[,] grid = new Transform[WIDTH, HEIGHT];
+
+    const int WIDTH = 10;
+    const int HEIGHT = 22;
+    const float ROTATE_ANGEL = 90f;
+
+    float dropTime;
+    float dropTimer;
+    #endregion
+    #region Unity Event Func
+    private void OnEnable()
+    {
+        PlayerInput.onMoveLeft += MoveLeft;
+        PlayerInput.onMoveRight += MoveRight;
+        PlayerInput.onDrop += Drop;
+        PlayerInput.onCancelDrop += CancelDrop;
+        PlayerInput.onRotate += Rotate;
+
+        dropTime = GameManager.Instance.AutoDropTime;
+    }
+    private void OnDisable()
+    {
+        PlayerInput.onMoveLeft -= MoveLeft;
+        PlayerInput.onMoveRight -= MoveRight;
+        PlayerInput.onDrop -= Drop;
+        PlayerInput.onCancelDrop -= CancelDrop;
+        PlayerInput.onRotate -= Rotate;
+    }
+    private void FixedUpdate()
+    {
+        dropTimer += Time.fixedDeltaTime;
+        if (dropTimer >= dropTime)
+        {
+            dropTimer = 0;
+            MoveDown();
+        }
+    }
+    #endregion
+    #region GENERIC
+    bool Movable
+    {
+        get
+        {
+            foreach (Transform child in transform)
+            {
+                int x = (int)child.position.x;
+                int y = (int)child.position.y;
+                if (x < 0 || x >= WIDTH || y < 0 || y >= HEIGHT)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
+    void Land()
+    {
+
+        foreach (Transform child in transform)
+        {
+            int x = (int)child.position.x;
+            int y = (int)child.position.y;
+            grid[x, y] = child;
+            if (y==HEIGHT-1)
+            {
+                //GameOver
+            }
+        }
+       
+    }
+    #endregion
+    #region Horizintal move
+    void MoveLeft()
+    {
+        transform.position += Vector3.left;
+        if (!Movable)
+        {
+            transform.position += Vector3.right;
+
+        }
+    }
+    void MoveRight()
+    {
+        transform.position += Vector3.right;
+        if (!Movable)
+        {
+            transform.position += Vector3.left;
+
+        }
+    }
+    #endregion
+    #region Vertical move  
+    void MoveDown()
+    {
+        transform.position += Vector3.down;
+        if (!Movable)
+        {
+            transform.position += Vector3.up;
+            Land();
+            enabled = false;
+        }
+       
+    }
+    void Drop()
+    {
+        dropTime = Time.fixedDeltaTime;
+    }
+    void CancelDrop()
+    {
+        dropTime = GameManager.Instance.AutoDropTime;
+    }
+    #endregion
+    #region Rotate
+    void Rotate()
+    {
+        transform.Rotate(Vector3.forward, ROTATE_ANGEL);
+        if (!Movable)
+        {
+            transform.Rotate(Vector3.forward, -ROTATE_ANGEL);
+
+        }
+    }
+    #endregion
 }
