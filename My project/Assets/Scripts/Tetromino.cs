@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Xml.Serialization;
 using UnityEngine;
 
 public class Tetromino : MonoBehaviour
@@ -50,9 +51,9 @@ public class Tetromino : MonoBehaviour
         {
             foreach (Transform child in transform)
             {
-                int x = (int)child.position.x;
-                int y = (int)child.position.y;
-                if (x < 0 || x >= WIDTH || y < 0 || y >= HEIGHT)
+                int x = Mathf.RoundToInt(child.position.x);
+                int y = Mathf.RoundToInt(child.position.y);
+                if (x < 0 || x >= WIDTH || y < 0 || y >= HEIGHT || grid[x, y] != null)
                 {
                     return false;
                 }
@@ -68,12 +69,12 @@ public class Tetromino : MonoBehaviour
             int x = (int)child.position.x;
             int y = (int)child.position.y;
             grid[x, y] = child;
-            if (y==HEIGHT-1)
+            if (y == HEIGHT - 1)
             {
                 //GameOver
             }
         }
-       
+
     }
     #endregion
     #region Horizintal move
@@ -104,9 +105,11 @@ public class Tetromino : MonoBehaviour
         {
             transform.position += Vector3.up;
             Land();
+            CleanFullRows();
             enabled = false;
+            GameManager.Instance.SpawnTetromino();
         }
-       
+
     }
     void Drop()
     {
@@ -125,6 +128,53 @@ public class Tetromino : MonoBehaviour
         {
             transform.Rotate(Vector3.forward, -ROTATE_ANGEL);
 
+        }
+    }
+    #endregion
+    #region Check Rows
+    void CleanFullRows()
+    {
+        for (int i = HEIGHT - 1; i >= 0; i--)
+        {
+            if (IsRowFull(i))
+            {
+                DestroyRow(i);
+                DecreaseRow(i);
+            }
+        }
+    }
+    bool IsRowFull(int y)
+    {
+        for (int x = 0; x < WIDTH; x++)
+        {
+            if (grid[x, y] == null)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+    void DestroyRow(int y)
+    {
+        for (int x = 0; x < WIDTH; x++)
+        {
+            Destroy(grid[x, y].gameObject);
+            grid[x, y] = null;
+        }
+    }
+    void DecreaseRow(int row)
+    {
+        for (int y = row; y < HEIGHT - 1; y++)
+        {
+            for (int x = 0;  x< WIDTH; x++)
+            {
+                if (grid[x,y+1]!=null)
+                {
+                    grid[x, y] = grid[x, y + 1];
+                    grid[x, y + 1] = null;
+                    grid[x, y].gameObject.transform.position += Vector3.down;
+                }
+            }
         }
     }
     #endregion
