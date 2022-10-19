@@ -12,6 +12,14 @@ public class PlayerInput : MonoBehaviour, InputActions.IGameplayActions
     public static event UnityAction onDrop = delegate { };
     public static event UnityAction onCancelDrop = delegate { };
     public static event UnityAction onRotate = delegate { };
+    public static event UnityAction onInstantDrop = delegate { };
+
+    public static bool keepMoveLeft = false;
+    public static bool keepMoveRight = false;
+
+    const float BUTTON_HOLD_TIME = 0.4f;
+
+    WaitForSeconds waitForButtonHoldTime = new WaitForSeconds(BUTTON_HOLD_TIME);
 
     static InputActions inputActions;
     private void Awake()
@@ -43,7 +51,7 @@ public class PlayerInput : MonoBehaviour, InputActions.IGameplayActions
         }
         if (context.canceled)
         {
-            onCancelDrop.Invoke();  
+            onCancelDrop.Invoke();
         }
     }
 
@@ -52,7 +60,18 @@ public class PlayerInput : MonoBehaviour, InputActions.IGameplayActions
         if (context.performed)
         {
             onMoveLeft.Invoke();
+            StartCoroutine(nameof(KeepMoveLeftCoroutine));
         }
+        if (context.canceled)
+        {
+            StopCoroutine(nameof(KeepMoveLeftCoroutine));
+            keepMoveLeft = false;
+        }
+    }
+    IEnumerator KeepMoveLeftCoroutine()
+    {
+        yield return waitForButtonHoldTime;
+        keepMoveLeft = true;
     }
 
     public void OnMoveRight(InputAction.CallbackContext context)
@@ -60,14 +79,32 @@ public class PlayerInput : MonoBehaviour, InputActions.IGameplayActions
         if (context.performed)
         {
             onMoveRight.Invoke();
+            StartCoroutine(nameof(KeepMoveRightCoroutine));
+        }
+        if (context.canceled)
+        {
+            StopCoroutine(nameof(KeepMoveRightCoroutine));
+            keepMoveRight = false;
         }
     }
-
+    IEnumerator KeepMoveRightCoroutine()
+    {
+        yield return waitForButtonHoldTime;
+        keepMoveRight = true;
+    }
     public void OnRotate(InputAction.CallbackContext context)
     {
         if (context.performed)
         {
             onRotate.Invoke();
+        }
+    }
+
+    public void OnInstantDrop(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+           onInstantDrop.Invoke();
         }
     }
 }

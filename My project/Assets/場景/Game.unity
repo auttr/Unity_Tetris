@@ -3195,6 +3195,14 @@ MonoBehaviour:
   - {fileID: 2685488943385260449, guid: 104f10c445e75514197e435ae25e9512, type: 3}
   - {fileID: 7018719533455901018, guid: b6994455cdca9bb4cbe0a09156f629a3, type: 3}
   - {fileID: 2125397535153660385, guid: 620c2a3ee4eabd742955dd597f93e482, type: 3}
+  ghostPrefabs:
+  - {fileID: 8455148704159629569, guid: d0a0ca10afa734c4aac36df5bfe1c75a, type: 3}
+  - {fileID: 8024056640470618356, guid: aa68920ebe7afa14c8342f7058f21d2d, type: 3}
+  - {fileID: 5792387224235327215, guid: e99a7b2690eafa34881a6f714fd80519, type: 3}
+  - {fileID: 2666841395759516766, guid: e1bca5b75337e384eadb035dacc44a51, type: 3}
+  - {fileID: 2685488943385260449, guid: 8b10a4816db32284397a959ef07a71fa, type: 3}
+  - {fileID: 7018719533455901018, guid: ed921db185162af48ac8000aafe7d87f, type: 3}
+  - {fileID: 2125397535153660385, guid: 1f4f76cf0d21abd4584984e50240d2ac, type: 3}
   tetrominoSpawnerTransform: {fileID: 1274894308}
   autoDropTime: 1.5
 --- !u!114 &1452822409

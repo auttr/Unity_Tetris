@@ -1,5 +1,5 @@
 {
-    "name": "Gameplay",
+    "name": "InputActions",
     "maps": [
         {
             "name": "Gameplay",
@@ -12,7 +12,7 @@
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
-                    "initialStateCheck": false
+                    "initialStateCheck": true
                 },
                 {
                     "name": "MoveRight",
@@ -36,6 +36,15 @@
                     "name": "Rotate",
                     "type": "Button",
                     "id": "5750a33e-453c-4adb-a0ef-83b8c515a72e",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "InstantDrop",
+                    "type": "Button",
+                    "id": "85b248a9-4b24-44ce-9b5f-7d323b81a0b8",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
@@ -128,6 +137,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "Rotate",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "ecadafd3-9956-48e9-acd6-bb825267930a",
+                    "path": "<Keyboard>/space",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "InstantDrop",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

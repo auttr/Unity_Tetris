@@ -1,21 +1,27 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Xml.Serialization;
 using UnityEngine;
 
 public class Tetromino : MonoBehaviour
 {
     #region Feilds
-    static Transform[,] grid = new Transform[WIDTH, HEIGHT];
+    public static Transform[,] grid = new Transform[WIDTH, HEIGHT];
 
-    const int WIDTH = 10;
-    const int HEIGHT = 22;
+    public const int WIDTH = 10;
+    public const int HEIGHT = 23;
     const float ROTATE_ANGEL = 90f;
 
     float dropTime;
     float dropTimer;
+
+    GameObject ghostTetromino;
     #endregion
     #region Unity Event Func
+    private void Start()
+    {
+        ghostTetromino = GameObject.FindGameObjectWithTag("Ghost");
+    }
+
     private void OnEnable()
     {
         PlayerInput.onMoveLeft += MoveLeft;
@@ -23,18 +29,24 @@ public class Tetromino : MonoBehaviour
         PlayerInput.onDrop += Drop;
         PlayerInput.onCancelDrop += CancelDrop;
         PlayerInput.onRotate += Rotate;
-
+        PlayerInput.onInstantDrop += InstantDrop;
+       
         dropTime = GameManager.Instance.AutoDropTime;
     }
-    private void OnDisable()
+   
+    void OnDisable()
     {
+        PlayerInput.onMoveLeft -= MoveLeft;
         PlayerInput.onMoveLeft -= MoveLeft;
         PlayerInput.onMoveRight -= MoveRight;
         PlayerInput.onDrop -= Drop;
         PlayerInput.onCancelDrop -= CancelDrop;
         PlayerInput.onRotate -= Rotate;
+        PlayerInput.onInstantDrop -= InstantDrop;
+        ghostTetromino = GameObject.FindGameObjectWithTag("Ghost");
+        DestroyGhost();
     }
-    private void FixedUpdate()
+    public virtual void FixedUpdate()
     {
         dropTimer += Time.fixedDeltaTime;
         if (dropTimer >= dropTime)
@@ -42,10 +54,19 @@ public class Tetromino : MonoBehaviour
             dropTimer = 0;
             MoveDown();
         }
+        if (PlayerInput.keepMoveLeft)
+        {
+            MoveLeft();
+        }
+        if (PlayerInput.keepMoveRight)
+        {
+            MoveRight();
+        }
+
     }
     #endregion
     #region GENERIC
-    bool Movable
+    public virtual bool Movable
     {
         get
         {
@@ -66,28 +87,30 @@ public class Tetromino : MonoBehaviour
 
         foreach (Transform child in transform)
         {
-            int x = (int)child.position.x;
-            int y = (int)child.position.y;
+            int x = Mathf.RoundToInt(child.position.x);
+            int y = Mathf.RoundToInt(child.position.y);
             grid[x, y] = child;
-            if (y == HEIGHT - 1)
+            if (y == HEIGHT - 2)
             {
-                //GameOver
+                print("GAMEOVER");
+                Time.timeScale = 0;
+                enabled = false;
             }
         }
 
     }
     #endregion
     #region Horizintal move
-    void MoveLeft()
+    public virtual void MoveLeft()
     {
         transform.position += Vector3.left;
         if (!Movable)
         {
             transform.position += Vector3.right;
-
         }
     }
-    void MoveRight()
+
+    public virtual void MoveRight()
     {
         transform.position += Vector3.right;
         if (!Movable)
@@ -96,9 +119,11 @@ public class Tetromino : MonoBehaviour
 
         }
     }
+
+
     #endregion
     #region Vertical move  
-    void MoveDown()
+    public virtual void MoveDown()
     {
         transform.position += Vector3.down;
         if (!Movable)
@@ -119,9 +144,11 @@ public class Tetromino : MonoBehaviour
     {
         dropTime = GameManager.Instance.AutoDropTime;
     }
+
+
     #endregion
     #region Rotate
-    void Rotate()
+    public virtual void Rotate()
     {
         transform.Rotate(Vector3.forward, ROTATE_ANGEL);
         if (!Movable)
@@ -166,9 +193,9 @@ public class Tetromino : MonoBehaviour
     {
         for (int y = row; y < HEIGHT - 1; y++)
         {
-            for (int x = 0;  x< WIDTH; x++)
+            for (int x = 0; x < WIDTH; x++)
             {
-                if (grid[x,y+1]!=null)
+                if (grid[x, y + 1] != null)
                 {
                     grid[x, y] = grid[x, y + 1];
                     grid[x, y + 1] = null;
@@ -178,4 +205,29 @@ public class Tetromino : MonoBehaviour
         }
     }
     #endregion
+    void InstantDrop()
+    {
+        dropTime = 0;
+        for (int i = HEIGHT; i >= 0; i--)
+        {
+            if (Movable)
+            {
+                transform.position += Vector3.down;
+
+            }
+
+        }
+
+        transform.position += Vector3.up;
+
+
+    }
+
+    public virtual void DestroyGhost()
+    {
+        Destroy(ghostTetromino);
+        
+    }
+
+
 }

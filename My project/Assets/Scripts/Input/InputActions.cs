@@ -34,7 +34,7 @@ public partial class @InputActions : IInputActionCollection2, IDisposable
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """",
-                    ""initialStateCheck"": false
+                    ""initialStateCheck"": true
                 },
                 {
                     ""name"": ""MoveRight"",
@@ -58,6 +58,15 @@ public partial class @InputActions : IInputActionCollection2, IDisposable
                     ""name"": ""Rotate"",
                     ""type"": ""Button"",
                     ""id"": ""5750a33e-453c-4adb-a0ef-83b8c515a72e"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""InstantDrop"",
+                    ""type"": ""Button"",
+                    ""id"": ""85b248a9-4b24-44ce-9b5f-7d323b81a0b8"",
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """",
@@ -152,6 +161,17 @@ public partial class @InputActions : IInputActionCollection2, IDisposable
                     ""action"": ""Rotate"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""ecadafd3-9956-48e9-acd6-bb825267930a"",
+                    ""path"": ""<Keyboard>/space"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""InstantDrop"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -164,6 +184,7 @@ public partial class @InputActions : IInputActionCollection2, IDisposable
         m_Gameplay_MoveRight = m_Gameplay.FindAction("MoveRight", throwIfNotFound: true);
         m_Gameplay_Drop = m_Gameplay.FindAction("Drop", throwIfNotFound: true);
         m_Gameplay_Rotate = m_Gameplay.FindAction("Rotate", throwIfNotFound: true);
+        m_Gameplay_InstantDrop = m_Gameplay.FindAction("InstantDrop", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -227,6 +248,7 @@ public partial class @InputActions : IInputActionCollection2, IDisposable
     private readonly InputAction m_Gameplay_MoveRight;
     private readonly InputAction m_Gameplay_Drop;
     private readonly InputAction m_Gameplay_Rotate;
+    private readonly InputAction m_Gameplay_InstantDrop;
     public struct GameplayActions
     {
         private @InputActions m_Wrapper;
@@ -235,6 +257,7 @@ public partial class @InputActions : IInputActionCollection2, IDisposable
         public InputAction @MoveRight => m_Wrapper.m_Gameplay_MoveRight;
         public InputAction @Drop => m_Wrapper.m_Gameplay_Drop;
         public InputAction @Rotate => m_Wrapper.m_Gameplay_Rotate;
+        public InputAction @InstantDrop => m_Wrapper.m_Gameplay_InstantDrop;
         public InputActionMap Get() { return m_Wrapper.m_Gameplay; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -256,6 +279,9 @@ public partial class @InputActions : IInputActionCollection2, IDisposable
                 @Rotate.started -= m_Wrapper.m_GameplayActionsCallbackInterface.OnRotate;
                 @Rotate.performed -= m_Wrapper.m_GameplayActionsCallbackInterface.OnRotate;
                 @Rotate.canceled -= m_Wrapper.m_GameplayActionsCallbackInterface.OnRotate;
+                @InstantDrop.started -= m_Wrapper.m_GameplayActionsCallbackInterface.OnInstantDrop;
+                @InstantDrop.performed -= m_Wrapper.m_GameplayActionsCallbackInterface.OnInstantDrop;
+                @InstantDrop.canceled -= m_Wrapper.m_GameplayActionsCallbackInterface.OnInstantDrop;
             }
             m_Wrapper.m_GameplayActionsCallbackInterface = instance;
             if (instance != null)
@@ -272,6 +298,9 @@ public partial class @InputActions : IInputActionCollection2, IDisposable
                 @Rotate.started += instance.OnRotate;
                 @Rotate.performed += instance.OnRotate;
                 @Rotate.canceled += instance.OnRotate;
+                @InstantDrop.started += instance.OnInstantDrop;
+                @InstantDrop.performed += instance.OnInstantDrop;
+                @InstantDrop.canceled += instance.OnInstantDrop;
             }
         }
     }
@@ -282,5 +311,6 @@ public partial class @InputActions : IInputActionCollection2, IDisposable
         void OnMoveRight(InputAction.CallbackContext context);
         void OnDrop(InputAction.CallbackContext context);
         void OnRotate(InputAction.CallbackContext context);
+        void OnInstantDrop(InputAction.CallbackContext context);
     }
 }
