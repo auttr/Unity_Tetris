@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class Tetromino : MonoBehaviour
@@ -14,12 +15,35 @@ public class Tetromino : MonoBehaviour
     float dropTime;
     float dropTimer;
 
+    [SerializeField, Header("基本傷害")]
+    float baseDamage;
+    [SerializeField, Header("基本連擊傷害")]
+    float baseCombo;
+    int blockCount;
+
+
+    bool isClear;
+
+    TextMeshProUGUI textCombo;
+    CanvasGroup endCanvas;
     GameObject ghostTetromino;
+    PlayerInput playerInput;
+    EnemySystem enemySystem;
     #endregion
     #region Unity Event Func
+
     private void Start()
     {
+
         ghostTetromino = GameObject.FindGameObjectWithTag("Ghost");
+        playerInput = FindObjectOfType<PlayerInput>();
+        textCombo = GameObject.Find("Text_Combo").GetComponent<TextMeshProUGUI>();
+        enemySystem = GameObject.Find("Mutant").GetComponent<EnemySystem>();
+        endCanvas = GameObject.Find("Canvas_遊戲結束").GetComponent<CanvasGroup>();
+        textCombo.color = new Color(0, 0, 0, 0);
+        isClear = false;
+        blockCount = 0;
+
     }
 
     private void OnEnable()
@@ -30,10 +54,10 @@ public class Tetromino : MonoBehaviour
         PlayerInput.onCancelDrop += CancelDrop;
         PlayerInput.onRotate += Rotate;
         PlayerInput.onInstantDrop += InstantDrop;
-       
+
         dropTime = GameManager.Instance.AutoDropTime;
     }
-   
+
     void OnDisable()
     {
         PlayerInput.onMoveLeft -= MoveLeft;
@@ -45,6 +69,8 @@ public class Tetromino : MonoBehaviour
         PlayerInput.onInstantDrop -= InstantDrop;
         ghostTetromino = GameObject.FindGameObjectWithTag("Ghost");
         DestroyGhost();
+        HadGetHurt();
+
     }
     public virtual void FixedUpdate()
     {
@@ -62,7 +88,6 @@ public class Tetromino : MonoBehaviour
         {
             MoveRight();
         }
-
     }
     #endregion
     #region GENERIC
@@ -92,8 +117,11 @@ public class Tetromino : MonoBehaviour
             grid[x, y] = child;
             if (y == HEIGHT - 2)
             {
-                print("GAMEOVER");
                 Time.timeScale = 0;
+                endCanvas.alpha = 1;
+                endCanvas.interactable = true;
+                endCanvas.blocksRaycasts = true;
+                playerInput.enabled = false;
                 enabled = false;
             }
         }
@@ -130,6 +158,7 @@ public class Tetromino : MonoBehaviour
         {
             transform.position += Vector3.up;
             Land();
+
             CleanFullRows();
             enabled = false;
             GameManager.Instance.SpawnTetromino();
@@ -150,10 +179,10 @@ public class Tetromino : MonoBehaviour
     #region Rotate
     public virtual void Rotate()
     {
-        transform.Rotate(Vector3.forward, ROTATE_ANGEL);
+        transform.Rotate(Vector3.forward, -ROTATE_ANGEL);
         if (!Movable)
         {
-            transform.Rotate(Vector3.forward, -ROTATE_ANGEL);
+            transform.Rotate(Vector3.forward, +ROTATE_ANGEL);
 
         }
     }
@@ -165,11 +194,17 @@ public class Tetromino : MonoBehaviour
         {
             if (IsRowFull(i))
             {
+                isClear = true;
                 DestroyRow(i);
                 DecreaseRow(i);
+
             }
+
         }
+
+
     }
+
     bool IsRowFull(int y)
     {
         for (int x = 0; x < WIDTH; x++)
@@ -187,6 +222,7 @@ public class Tetromino : MonoBehaviour
         {
             Destroy(grid[x, y].gameObject);
             grid[x, y] = null;
+            blockCount++;
         }
     }
     void DecreaseRow(int row)
@@ -200,6 +236,7 @@ public class Tetromino : MonoBehaviour
                     grid[x, y] = grid[x, y + 1];
                     grid[x, y + 1] = null;
                     grid[x, y].gameObject.transform.position += Vector3.down;
+
                 }
             }
         }
@@ -226,8 +263,30 @@ public class Tetromino : MonoBehaviour
     public virtual void DestroyGhost()
     {
         Destroy(ghostTetromino);
-        
+
     }
+    public virtual void HadGetHurt()
+    {
+        if (isClear)
+        {
+            enemySystem.GetHurt(blockCount * baseDamage + enemySystem.comboCount * baseCombo);
+            if (enemySystem.hurtCount > 1)
+            {
+                enemySystem.comboCount++;
+                textCombo.color = Color.red;
+                textCombo.text = enemySystem.comboCount.ToString() + " Combo" + "\n+ " + enemySystem.comboCount * baseCombo;
+
+            }
+        }
+        else
+        {
+            enemySystem.hurtCount = 0;
+            enemySystem.comboCount = 0;
+            textCombo.color = new Color(0, 0, 0, 0);
+        }
+
+    }
+
 
 
 }

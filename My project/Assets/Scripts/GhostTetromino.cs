@@ -54,7 +54,12 @@ public class GhostTetromino : Tetromino
     {
         
     }
-    
+    public override void HadGetHurt()
+    {
+        
+    }
+   
+
 
 
 
