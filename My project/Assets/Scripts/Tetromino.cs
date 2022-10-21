@@ -29,6 +29,8 @@ public class Tetromino : MonoBehaviour
     GameObject ghostTetromino;
     PlayerInput playerInput;
     EnemySystem enemySystem;
+
+
     #endregion
     #region Unity Event Func
 
@@ -40,10 +42,8 @@ public class Tetromino : MonoBehaviour
         textCombo = GameObject.Find("Text_Combo").GetComponent<TextMeshProUGUI>();
         enemySystem = GameObject.Find("Mutant").GetComponent<EnemySystem>();
         endCanvas = GameObject.Find("Canvas_¹CÀ¸µ²§ô").GetComponent<CanvasGroup>();
-        textCombo.color = new Color(0, 0, 0, 0);
         isClear = false;
         blockCount = 0;
-
     }
 
     private void OnEnable()
@@ -118,9 +118,7 @@ public class Tetromino : MonoBehaviour
             if (y == HEIGHT - 2)
             {
                 Time.timeScale = 0;
-                endCanvas.alpha = 1;
-                endCanvas.interactable = true;
-                endCanvas.blocksRaycasts = true;
+                GameManager.Instance.FinishGame();
                 playerInput.enabled = false;
                 enabled = false;
             }
@@ -158,7 +156,6 @@ public class Tetromino : MonoBehaviour
         {
             transform.position += Vector3.up;
             Land();
-
             CleanFullRows();
             enabled = false;
             GameManager.Instance.SpawnTetromino();
@@ -269,20 +266,31 @@ public class Tetromino : MonoBehaviour
     {
         if (isClear)
         {
-            enemySystem.GetHurt(blockCount * baseDamage + enemySystem.comboCount * baseCombo);
+            enemySystem.GetHurt(blockCount * baseDamage);
+           
             if (enemySystem.hurtCount > 1)
             {
                 enemySystem.comboCount++;
-                textCombo.color = Color.red;
+                textCombo.color = new Color(255, 255, 255, 255);
                 textCombo.text = enemySystem.comboCount.ToString() + " Combo" + "\n+ " + enemySystem.comboCount * baseCombo;
-
+                enemySystem.ComboDamage(enemySystem.comboCount * baseCombo);
             }
+            if (enemySystem.comboCount > 5)
+            {
+                GameManager.Instance.audioSourceFall.PlayOneShot(GameManager.Instance.audioClipsFull[5]);
+            }
+            else
+            {
+                GameManager.Instance.audioSourceFall.PlayOneShot(GameManager.Instance.audioClipsFull[enemySystem.comboCount]);
+            }
+            
         }
         else
         {
             enemySystem.hurtCount = 0;
             enemySystem.comboCount = 0;
             textCombo.color = new Color(0, 0, 0, 0);
+            GameManager.Instance.audioSourceFall.PlayOneShot(GameManager.Instance.audioClipsFull[0]);
         }
 
     }

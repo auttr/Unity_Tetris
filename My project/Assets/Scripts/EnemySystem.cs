@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -20,6 +21,8 @@ public class EnemySystem : MonoBehaviour
     public int hurtCount;
     public int comboCount;
 
+
+    
     #endregion
     #region Unity Event Func
     private void Awake()
@@ -37,16 +40,20 @@ public class EnemySystem : MonoBehaviour
     public void GetHurt(float damage)
     {
         hurtCount++;
-        print(hurtCount);
         hp -= damage;
         ani.SetTrigger(paraHurt);
 
+    }
+    public void ComboDamage(float damage)
+    {
+        hp -= damage;
     }
     void Dead()
     {
         if (hp <= 0)
         {
             ani.SetBool(paraDead, true);
+            GameManager.Instance.FinishGame();
         }
     }
 
