@@ -13,6 +13,7 @@ public class PlayerInput : MonoBehaviour, InputActions.IGameplayActions
     public static event UnityAction onCancelDrop = delegate { };
     public static event UnityAction onRotate = delegate { };
     public static event UnityAction onInstantDrop = delegate { };
+    public static event UnityAction onHold = delegate { };
 
     public static bool keepMoveLeft = false;
     public static bool keepMoveRight = false;
@@ -105,6 +106,14 @@ public class PlayerInput : MonoBehaviour, InputActions.IGameplayActions
         if (context.performed)
         {
            onInstantDrop.Invoke();
+        }
+    }
+
+    public void OnHold(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            onHold.Invoke();
         }
     }
 }

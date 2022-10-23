@@ -71,6 +71,15 @@ public partial class @InputActions : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Hold"",
+                    ""type"": ""Button"",
+                    ""id"": ""4ccdcbaa-1dc7-4cd5-984d-b4f51671ff9b"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -172,6 +181,17 @@ public partial class @InputActions : IInputActionCollection2, IDisposable
                     ""action"": ""InstantDrop"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""49f57c83-35a3-43d7-8c8f-dc3147961d90"",
+                    ""path"": ""<Keyboard>/c"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Hold"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -185,6 +205,7 @@ public partial class @InputActions : IInputActionCollection2, IDisposable
         m_Gameplay_Drop = m_Gameplay.FindAction("Drop", throwIfNotFound: true);
         m_Gameplay_Rotate = m_Gameplay.FindAction("Rotate", throwIfNotFound: true);
         m_Gameplay_InstantDrop = m_Gameplay.FindAction("InstantDrop", throwIfNotFound: true);
+        m_Gameplay_Hold = m_Gameplay.FindAction("Hold", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -249,6 +270,7 @@ public partial class @InputActions : IInputActionCollection2, IDisposable
     private readonly InputAction m_Gameplay_Drop;
     private readonly InputAction m_Gameplay_Rotate;
     private readonly InputAction m_Gameplay_InstantDrop;
+    private readonly InputAction m_Gameplay_Hold;
     public struct GameplayActions
     {
         private @InputActions m_Wrapper;
@@ -258,6 +280,7 @@ public partial class @InputActions : IInputActionCollection2, IDisposable
         public InputAction @Drop => m_Wrapper.m_Gameplay_Drop;
         public InputAction @Rotate => m_Wrapper.m_Gameplay_Rotate;
         public InputAction @InstantDrop => m_Wrapper.m_Gameplay_InstantDrop;
+        public InputAction @Hold => m_Wrapper.m_Gameplay_Hold;
         public InputActionMap Get() { return m_Wrapper.m_Gameplay; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -282,6 +305,9 @@ public partial class @InputActions : IInputActionCollection2, IDisposable
                 @InstantDrop.started -= m_Wrapper.m_GameplayActionsCallbackInterface.OnInstantDrop;
                 @InstantDrop.performed -= m_Wrapper.m_GameplayActionsCallbackInterface.OnInstantDrop;
                 @InstantDrop.canceled -= m_Wrapper.m_GameplayActionsCallbackInterface.OnInstantDrop;
+                @Hold.started -= m_Wrapper.m_GameplayActionsCallbackInterface.OnHold;
+                @Hold.performed -= m_Wrapper.m_GameplayActionsCallbackInterface.OnHold;
+                @Hold.canceled -= m_Wrapper.m_GameplayActionsCallbackInterface.OnHold;
             }
             m_Wrapper.m_GameplayActionsCallbackInterface = instance;
             if (instance != null)
@@ -301,6 +327,9 @@ public partial class @InputActions : IInputActionCollection2, IDisposable
                 @InstantDrop.started += instance.OnInstantDrop;
                 @InstantDrop.performed += instance.OnInstantDrop;
                 @InstantDrop.canceled += instance.OnInstantDrop;
+                @Hold.started += instance.OnHold;
+                @Hold.performed += instance.OnHold;
+                @Hold.canceled += instance.OnHold;
             }
         }
     }
@@ -312,5 +341,6 @@ public partial class @InputActions : IInputActionCollection2, IDisposable
         void OnDrop(InputAction.CallbackContext context);
         void OnRotate(InputAction.CallbackContext context);
         void OnInstantDrop(InputAction.CallbackContext context);
+        void OnHold(InputAction.CallbackContext context);
     }
 }

@@ -24,8 +24,8 @@ public class Tetromino : MonoBehaviour
 
     bool isClear;
 
+
     TextMeshProUGUI textCombo;
-    CanvasGroup endCanvas;
     GameObject ghostTetromino;
     PlayerInput playerInput;
     EnemySystem enemySystem;
@@ -40,10 +40,11 @@ public class Tetromino : MonoBehaviour
         ghostTetromino = GameObject.FindGameObjectWithTag("Ghost");
         playerInput = FindObjectOfType<PlayerInput>();
         textCombo = GameObject.Find("Text_Combo").GetComponent<TextMeshProUGUI>();
-        enemySystem = GameObject.Find("Mutant").GetComponent<EnemySystem>();
-        endCanvas = GameObject.Find("Canvas_¹CÀ¸µ²§ô").GetComponent<CanvasGroup>();
+        enemySystem = FindObjectOfType<EnemySystem>();
         isClear = false;
         blockCount = 0;
+        GameManager.Instance.isCount = false;
+
     }
 
     private void OnEnable()
@@ -54,6 +55,7 @@ public class Tetromino : MonoBehaviour
         PlayerInput.onCancelDrop += CancelDrop;
         PlayerInput.onRotate += Rotate;
         PlayerInput.onInstantDrop += InstantDrop;
+        PlayerInput.onHold += Hold;
 
         dropTime = GameManager.Instance.AutoDropTime;
     }
@@ -67,9 +69,11 @@ public class Tetromino : MonoBehaviour
         PlayerInput.onCancelDrop -= CancelDrop;
         PlayerInput.onRotate -= Rotate;
         PlayerInput.onInstantDrop -= InstantDrop;
+        PlayerInput.onHold -= Hold;
         ghostTetromino = GameObject.FindGameObjectWithTag("Ghost");
         DestroyGhost();
         HadGetHurt();
+
 
     }
     public virtual void FixedUpdate()
@@ -154,11 +158,13 @@ public class Tetromino : MonoBehaviour
         transform.position += Vector3.down;
         if (!Movable)
         {
+
             transform.position += Vector3.up;
             Land();
             CleanFullRows();
             enabled = false;
             GameManager.Instance.SpawnTetromino();
+
         }
 
     }
@@ -260,14 +266,17 @@ public class Tetromino : MonoBehaviour
     public virtual void DestroyGhost()
     {
         Destroy(ghostTetromino);
+        GameManager.Instance.tetrominoIndexList.RemoveAt(0);
 
     }
     public virtual void HadGetHurt()
     {
+        GameManager.Instance.holdCount = 0;
+
         if (isClear)
         {
             enemySystem.GetHurt(blockCount * baseDamage);
-           
+
             if (enemySystem.hurtCount > 1)
             {
                 enemySystem.comboCount++;
@@ -283,7 +292,7 @@ public class Tetromino : MonoBehaviour
             {
                 GameManager.Instance.audioSourceFall.PlayOneShot(GameManager.Instance.audioClipsFull[enemySystem.comboCount]);
             }
-            
+
         }
         else
         {
@@ -292,6 +301,15 @@ public class Tetromino : MonoBehaviour
             textCombo.color = new Color(0, 0, 0, 0);
             GameManager.Instance.audioSourceFall.PlayOneShot(GameManager.Instance.audioClipsFull[0]);
         }
+
+
+
+    }
+
+    public virtual void Hold()
+    {
+
+        GameManager.Instance.Hold();
 
     }
 
