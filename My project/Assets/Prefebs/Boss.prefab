@@ -830,10 +830,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hpSet: 250
-  attackCdSet: 3
-  attackDamage: 30
-  bossCome: {fileID: 0}
-  imageBossCome: {fileID: 0}
+  attackCdSet: 4
+  attackDamage: 10
   a: 0
   hurtCount: 0
   comboCount: 0

@@ -2,317 +2,324 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-
-public class Tetromino : MonoBehaviour
+namespace auttr
 {
-    #region Feilds
-    public static Transform[,] grid = new Transform[WIDTH, HEIGHT];
-
-    public const int WIDTH = 10;
-    public const int HEIGHT = 23;
-    const float ROTATE_ANGEL = 90f;
-
-    float dropTime;
-    float dropTimer;
-
-    [SerializeField, Header("基本傷害")]
-    float baseDamage;
-    [SerializeField, Header("基本連擊傷害")]
-    float baseCombo;
-    int blockCount;
-
-
-    bool isClear;
-
-
-    TextMeshProUGUI textCombo;
-    GameObject ghostTetromino;
-    PlayerInput playerInput;
-    EnemySystem enemySystem;
-
-
-    #endregion
-    #region Unity Event Func
-
-    private void Start()
+    public class Tetromino : MonoBehaviour
     {
+        #region Feilds
+        public static Transform[,] grid = new Transform[WIDTH, HEIGHT];
 
-        ghostTetromino = GameObject.FindGameObjectWithTag("Ghost");
-        playerInput = FindObjectOfType<PlayerInput>();
-        textCombo = GameObject.Find("Text_Combo").GetComponent<TextMeshProUGUI>();
-        enemySystem = FindObjectOfType<EnemySystem>();
-        isClear = false;
-        blockCount = 0;
-        GameManager.Instance.isCount = false;
+        public const int WIDTH = 10;
+        public const int HEIGHT = 23;
+        const float ROTATE_ANGEL = 90f;
 
-    }
+        float dropTime;
+        float dropTimer;
 
-    private void OnEnable()
-    {
-        PlayerInput.onMoveLeft += MoveLeft;
-        PlayerInput.onMoveRight += MoveRight;
-        PlayerInput.onDrop += Drop;
-        PlayerInput.onCancelDrop += CancelDrop;
-        PlayerInput.onRotate += Rotate;
-        PlayerInput.onInstantDrop += InstantDrop;
-        PlayerInput.onHold += Hold;
-
-        dropTime = GameManager.Instance.AutoDropTime;
-    }
-
-    void OnDisable()
-    {
-        PlayerInput.onMoveLeft -= MoveLeft;
-        PlayerInput.onMoveLeft -= MoveLeft;
-        PlayerInput.onMoveRight -= MoveRight;
-        PlayerInput.onDrop -= Drop;
-        PlayerInput.onCancelDrop -= CancelDrop;
-        PlayerInput.onRotate -= Rotate;
-        PlayerInput.onInstantDrop -= InstantDrop;
-        PlayerInput.onHold -= Hold;
-        ghostTetromino = GameObject.FindGameObjectWithTag("Ghost");
-        DestroyGhost();
-        HadGetHurt();
+        [SerializeField, Header("基本傷害")]
+        float baseDamage;
+        [SerializeField, Header("基本連擊傷害")]
+        float baseCombo;
+        int blockCount;
 
 
-    }
-    public virtual void FixedUpdate()
-    {
-        dropTimer += Time.fixedDeltaTime;
-        if (dropTimer >= dropTime)
+        bool isClear;
+
+        Player player;
+        TextMeshProUGUI textCombo;
+        GameObject ghostTetromino;
+        PlayerInput playerInput;
+        EnemySystem enemySystem;
+
+
+        #endregion
+        #region Unity Event Func
+
+        private void Start()
         {
-            dropTimer = 0;
-            MoveDown();
+
+            ghostTetromino = GameObject.FindGameObjectWithTag("Ghost");
+            playerInput = FindObjectOfType<PlayerInput>();
+            textCombo = GameObject.Find("Text_Combo").GetComponent<TextMeshProUGUI>();
+            enemySystem = FindObjectOfType<EnemySystem>();
+            isClear = false;
+            blockCount = 0;
+            GameManager.Instance.isCount = false;
+            player = FindObjectOfType<Player>().GetComponent<Player>();
         }
-        if (PlayerInput.keepMoveLeft)
+
+        private void OnEnable()
         {
-            MoveLeft();
+            PlayerInput.onMoveLeft += MoveLeft;
+            PlayerInput.onMoveRight += MoveRight;
+            PlayerInput.onDrop += Drop;
+            PlayerInput.onCancelDrop += CancelDrop;
+            PlayerInput.onRotate += Rotate;
+            PlayerInput.onInstantDrop += InstantDrop;
+            PlayerInput.onHold += Hold;
+
+            dropTime = GameManager.Instance.AutoDropTime;
         }
-        if (PlayerInput.keepMoveRight)
+
+        void OnDisable()
         {
-            MoveRight();
+            PlayerInput.onMoveLeft -= MoveLeft;
+            PlayerInput.onMoveLeft -= MoveLeft;
+            PlayerInput.onMoveRight -= MoveRight;
+            PlayerInput.onDrop -= Drop;
+            PlayerInput.onCancelDrop -= CancelDrop;
+            PlayerInput.onRotate -= Rotate;
+            PlayerInput.onInstantDrop -= InstantDrop;
+            PlayerInput.onHold -= Hold;
+            ghostTetromino = GameObject.FindGameObjectWithTag("Ghost");
+            DestroyGhost();
+            HadGetHurt();
+
+
         }
-    }
-    #endregion
-    #region GENERIC
-    public virtual bool Movable
-    {
-        get
+        public virtual void FixedUpdate()
         {
+            dropTimer += Time.fixedDeltaTime;
+            if (dropTimer >= dropTime)
+            {
+                dropTimer = 0;
+                MoveDown();
+            }
+            if (PlayerInput.keepMoveLeft)
+            {
+                MoveLeft();
+            }
+            if (PlayerInput.keepMoveRight)
+            {
+                MoveRight();
+            }
+        }
+        #endregion
+        #region GENERIC
+        public virtual bool Movable
+        {
+            get
+            {
+                foreach (Transform child in transform)
+                {
+                    int x = Mathf.RoundToInt(child.position.x);
+                    int y = Mathf.RoundToInt(child.position.y);
+                    if (x < 0 || x >= WIDTH || y < 0 || y >= HEIGHT || grid[x, y] != null)
+                    {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        }
+        void Land()
+        {
+
             foreach (Transform child in transform)
             {
                 int x = Mathf.RoundToInt(child.position.x);
                 int y = Mathf.RoundToInt(child.position.y);
-                if (x < 0 || x >= WIDTH || y < 0 || y >= HEIGHT || grid[x, y] != null)
+                grid[x, y] = child;
+                if (y == HEIGHT - 2)
+                {
+                    GameManager.Instance.isTooHeigh = true;
+                    Time.timeScale = 0;
+                    GameManager.Instance.FinishGame();
+                    playerInput.enabled = false;
+                    enabled = false;
+                }
+            }
+
+        }
+        #endregion
+        #region Horizintal move
+        public virtual void MoveLeft()
+        {
+            transform.position += Vector3.left;
+            if (!Movable)
+            {
+                transform.position += Vector3.right;
+            }
+        }
+
+        public virtual void MoveRight()
+        {
+            transform.position += Vector3.right;
+            if (!Movable)
+            {
+                transform.position += Vector3.left;
+
+            }
+        }
+
+
+        #endregion
+        #region Vertical move  
+        public virtual void MoveDown()
+        {
+            transform.position += Vector3.down;
+            if (!Movable)
+            {
+
+                transform.position += Vector3.up;
+                Land();
+                CleanFullRows();
+                enabled = false;
+                GameManager.Instance.SpawnTetromino();
+
+            }
+
+        }
+        void Drop()
+        {
+            dropTime = Time.fixedDeltaTime;
+        }
+        void CancelDrop()
+        {
+            dropTime = GameManager.Instance.AutoDropTime;
+        }
+
+
+        #endregion
+        #region Rotate
+        public virtual void Rotate()
+        {
+            transform.Rotate(Vector3.forward, -ROTATE_ANGEL);
+            if (!Movable)
+            {
+                transform.Rotate(Vector3.forward, +ROTATE_ANGEL);
+
+            }
+        }
+        #endregion
+        #region Check Rows
+        void CleanFullRows()
+        {
+            for (int i = HEIGHT - 1; i >= 0; i--)
+            {
+                if (IsRowFull(i))
+                {
+                    isClear = true;
+                    DestroyRow(i);
+                    DecreaseRow(i);
+
+                }
+
+            }
+
+
+        }
+
+        bool IsRowFull(int y)
+        {
+            for (int x = 0; x < WIDTH; x++)
+            {
+                if (grid[x, y] == null)
                 {
                     return false;
                 }
             }
             return true;
         }
-    }
-    void Land()
-    {
-
-        foreach (Transform child in transform)
-        {
-            int x = Mathf.RoundToInt(child.position.x);
-            int y = Mathf.RoundToInt(child.position.y);
-            grid[x, y] = child;
-            if (y == HEIGHT - 2)
-            {
-                Time.timeScale = 0;
-                GameManager.Instance.FinishGame();
-                playerInput.enabled = false;
-                enabled = false;
-            }
-        }
-
-    }
-    #endregion
-    #region Horizintal move
-    public virtual void MoveLeft()
-    {
-        transform.position += Vector3.left;
-        if (!Movable)
-        {
-            transform.position += Vector3.right;
-        }
-    }
-
-    public virtual void MoveRight()
-    {
-        transform.position += Vector3.right;
-        if (!Movable)
-        {
-            transform.position += Vector3.left;
-
-        }
-    }
-
-
-    #endregion
-    #region Vertical move  
-    public virtual void MoveDown()
-    {
-        transform.position += Vector3.down;
-        if (!Movable)
-        {
-
-            transform.position += Vector3.up;
-            Land();
-            CleanFullRows();
-            enabled = false;
-            GameManager.Instance.SpawnTetromino();
-
-        }
-
-    }
-    void Drop()
-    {
-        dropTime = Time.fixedDeltaTime;
-    }
-    void CancelDrop()
-    {
-        dropTime = GameManager.Instance.AutoDropTime;
-    }
-
-
-    #endregion
-    #region Rotate
-    public virtual void Rotate()
-    {
-        transform.Rotate(Vector3.forward, -ROTATE_ANGEL);
-        if (!Movable)
-        {
-            transform.Rotate(Vector3.forward, +ROTATE_ANGEL);
-
-        }
-    }
-    #endregion
-    #region Check Rows
-    void CleanFullRows()
-    {
-        for (int i = HEIGHT - 1; i >= 0; i--)
-        {
-            if (IsRowFull(i))
-            {
-                isClear = true;
-                DestroyRow(i);
-                DecreaseRow(i);
-
-            }
-
-        }
-
-
-    }
-
-    bool IsRowFull(int y)
-    {
-        for (int x = 0; x < WIDTH; x++)
-        {
-            if (grid[x, y] == null)
-            {
-                return false;
-            }
-        }
-        return true;
-    }
-    void DestroyRow(int y)
-    {
-        for (int x = 0; x < WIDTH; x++)
-        {
-            Destroy(grid[x, y].gameObject);
-            grid[x, y] = null;
-            blockCount++;
-        }
-    }
-    void DecreaseRow(int row)
-    {
-        for (int y = row; y < HEIGHT - 1; y++)
+        void DestroyRow(int y)
         {
             for (int x = 0; x < WIDTH; x++)
             {
-                if (grid[x, y + 1] != null)
+                Destroy(grid[x, y].gameObject);
+                grid[x, y] = null;
+                blockCount++;
+                GameManager.Instance.totalScore++;
+                player.energy++;
+            }
+        }
+        void DecreaseRow(int row)
+        {
+            for (int y = row; y < HEIGHT - 1; y++)
+            {
+                for (int x = 0; x < WIDTH; x++)
                 {
-                    grid[x, y] = grid[x, y + 1];
-                    grid[x, y + 1] = null;
-                    grid[x, y].gameObject.transform.position += Vector3.down;
+                    if (grid[x, y + 1] != null)
+                    {
+                        grid[x, y] = grid[x, y + 1];
+                        grid[x, y + 1] = null;
+                        grid[x, y].gameObject.transform.position += Vector3.down;
 
+                    }
                 }
             }
         }
-    }
-    #endregion
-    void InstantDrop()
-    {
-        dropTime = 0;
-        for (int i = HEIGHT; i >= 0; i--)
+        #endregion
+        void InstantDrop()
         {
-            if (Movable)
+            dropTime = 0;
+            for (int i = HEIGHT; i >= 0; i--)
             {
-                transform.position += Vector3.down;
+                if (Movable)
+                {
+                    transform.position += Vector3.down;
+
+                }
 
             }
+
+            transform.position += Vector3.up;
+
 
         }
 
-        transform.position += Vector3.up;
-
-
-    }
-
-    public virtual void DestroyGhost()
-    {
-        Destroy(ghostTetromino);
-        GameManager.Instance.tetrominoIndexList.RemoveAt(0);
-
-    }
-    public virtual void HadGetHurt()
-    {
-        GameManager.Instance.holdCount = 0;
-
-        if (isClear)
+        public virtual void DestroyGhost()
         {
-            enemySystem.GetHurt(blockCount * baseDamage);
+            Destroy(ghostTetromino);
+            GameManager.Instance.tetrominoIndexList.RemoveAt(0);
 
-            if (enemySystem.hurtCount > 1)
+        }
+        public virtual void HadGetHurt()
+        {
+            GameManager.Instance.holdCount = 0;
+
+            if (isClear)
             {
-                enemySystem.comboCount++;
-                textCombo.color = new Color(255, 255, 255, 255);
-                textCombo.text = enemySystem.comboCount.ToString() + " Combo" + "\n+ " + enemySystem.comboCount * baseCombo;
-                enemySystem.ComboDamage(enemySystem.comboCount * baseCombo);
-            }
-            if (enemySystem.comboCount > 5)
-            {
-                GameManager.Instance.audioSourceFall.PlayOneShot(GameManager.Instance.audioClipsFull[5]);
+                enemySystem.GetHurt(blockCount * baseDamage);
+
+                if (enemySystem.hurtCount > 1)
+                {
+                    enemySystem.comboCount++;
+                    textCombo.color = new Color(255, 255, 255, 255);
+                    textCombo.text = enemySystem.comboCount.ToString() + " Combo" + "\n+ " + enemySystem.comboCount * baseCombo;
+                    enemySystem.ComboDamage(enemySystem.comboCount * baseCombo);
+                }
+                if (enemySystem.comboCount > 5)
+                {
+                    GameManager.Instance.audioSourceFall.PlayOneShot(GameManager.Instance.audioClipsFull[5]);
+                }
+                else
+                {
+                    GameManager.Instance.audioSourceFall.PlayOneShot(GameManager.Instance.audioClipsFull[enemySystem.comboCount]);
+                }
+
             }
             else
             {
-                GameManager.Instance.audioSourceFall.PlayOneShot(GameManager.Instance.audioClipsFull[enemySystem.comboCount]);
+                enemySystem.hurtCount = 0;
+                enemySystem.comboCount = 0;
+                textCombo.color = new Color(0, 0, 0, 0);
+                GameManager.Instance.audioSourceFall.PlayOneShot(GameManager.Instance.audioClipsFull[0]);
             }
 
+
+
         }
-        else
+
+        public virtual void Hold()
         {
-            enemySystem.hurtCount = 0;
-            enemySystem.comboCount = 0;
-            textCombo.color = new Color(0, 0, 0, 0);
-            GameManager.Instance.audioSourceFall.PlayOneShot(GameManager.Instance.audioClipsFull[0]);
+
+            GameManager.Instance.Hold();
+
         }
 
 
 
     }
-
-    public virtual void Hold()
-    {
-
-        GameManager.Instance.Hold();
-
-    }
-
-
 
 }
+

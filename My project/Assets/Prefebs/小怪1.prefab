@@ -1528,11 +1528,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6d9b8c3734a31ea4697c47c5ad6dd9f8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hpSet: 10
+  hpSet: 30
   attackCdSet: 10
-  attackDamage: 10
-  bossCome: {fileID: 0}
-  imageBossCome: {fileID: 0}
+  attackDamage: 30
   a: 0
   hurtCount: 0
   comboCount: 0
