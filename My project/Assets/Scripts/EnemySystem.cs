@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
@@ -14,11 +15,14 @@ public class EnemySystem : MonoBehaviour
     float attackCdSet;
     float attackCd;
     Image imageHp;
-
-
+    [SerializeField, Header("§ðÀ»¶Ë®`")]
+    float attackDamage;
+   
+    public bool  a;
     Animator ani;
     string paraDead = "Ä²µo¦º";
     string paraHurt = "Ä²µoµh";
+    string paraAtt = "Ä²µo§ðÀ»";
 
     public int hurtCount;
     public int comboCount;
@@ -26,25 +30,30 @@ public class EnemySystem : MonoBehaviour
     float timer;
     float time = 1.5f;
 
-
+    Player player;
+    TextMeshProUGUI attCountText;
     #endregion
     #region Unity Event Func
     private void Awake()
     {
         hp = hpSet;
+        attackCd = attackCdSet;
         imageHp = GameObject.Find("Image_¼Ä¤H¦å±ø").GetComponent<Image>();
         ani = GetComponent<Animator>();
-
+        player = GameObject.Find("Player").GetComponent<Player>();
+        attCountText = GameObject.Find("Text_§ðÀ»­Ë¼Æ").GetComponent<TextMeshProUGUI>();
+        
     }
     private void Update()
     {
         imageHp.fillAmount = hp / hpSet;
+        Attack();
         Dead();
     }
     #endregion
     public void GetHurt(float damage)
     {
-
+        
         hurtCount++;
         hp -= damage;
         ani.SetTrigger(paraHurt);
@@ -80,6 +89,19 @@ public class EnemySystem : MonoBehaviour
             }
 
         }
+    }
+    void Attack()
+    {
+        attackCd -= Time.deltaTime;
+        attCountText.text = ((int)attackCd).ToString();
+        if (attackCd<=0)
+        {
+            attackCd = attackCdSet;
+            ani.SetTrigger(paraAtt);
+            player.GetHurt(attackDamage);
+        }
+
+       
     }
 
 

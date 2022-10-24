@@ -1,6 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
-
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -35,6 +35,14 @@ public class GameManager : MonoBehaviour
     Background background;
     [SerializeField, Header("Image_移動遮擋")]
     GameObject moveCover;
+    [SerializeField, Header("小怪")]
+    GameObject[] mosters;
+    TextMeshProUGUI waveText;
+    int waveMax = 3;
+    [SerializeField, Header("Boss襲來")]
+    GameObject bossCome;
+
+    int wave = 1;
     private void Awake()
     {
         Instance = this;
@@ -44,7 +52,13 @@ public class GameManager : MonoBehaviour
         audioSourceFall = GetComponent<AudioSource>();
         background = GameObject.Find("BackgroundControl").GetComponent<Background>();
         background.enabled = false;
+        Instantiate(mosters[0]);
+        waveText = GameObject.Find("Text_回和數").GetComponent<TextMeshProUGUI>();
         //previewTetrominoPrefabDown.transform.position = tetrominoPreviewTransformDown.position;
+    }
+    private void Start()
+    {
+        waveText.text = "回合: " + wave + "/" + waveMax;
     }
     private void Update()
     {
@@ -181,21 +195,49 @@ public class GameManager : MonoBehaviour
 
     public void FinishWave()
     {
-       
-        tetromino.GetComponent<Tetromino>().enabled = false;
+        Destroy(tetromino);
+        holdCount++;
+        // tetromino.GetComponent<Tetromino>().enabled = false;
         moveCover.SetActive(true);
-        StartCoroutine(nameof(MoveGround));
-        background.enabled = false;
-        moveCover.SetActive(false);
-        tetromino.GetComponent<Tetromino>().enabled = true;
+        StartCoroutine(MoveGround());
+        wave++;
+        waveText.text = "回合: " + wave + "/" + waveMax;
+        InstantiateMonster();
     }
     IEnumerator MoveGround()
     {
+
         background.enabled = true;
-        yield return new WaitForSeconds(1.5f);
-        StopCoroutine(nameof(MoveGround));
+        yield return new WaitForSeconds(2.5f);
+
+        background.enabled = false;
+        moveCover.SetActive(false);
+        // tetromino.GetComponent<Tetromino>().enabled = true;
+        SpawnTetromino();
+        StopCoroutine(MoveGround());
+    }
+    void InstantiateMonster()
+    {
+        Instantiate(mosters[wave - 1]);
+        if (wave == 3)
+        {
+            StartCoroutine(BossComeIE());
+
+        }
+    }
+    IEnumerator BossComeIE()
+    {
+        for (int i = 0; i < 5; i++)
+        {
+            bossCome.SetActive(true);
+            yield return new WaitForSeconds(0.1f);
+            bossCome.SetActive(false);
+            yield return new WaitForSeconds(0.1f);
+        }
+        StopCoroutine(BossComeIE());
 
     }
+
 
 
 
