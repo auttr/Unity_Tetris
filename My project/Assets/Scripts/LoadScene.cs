@@ -16,7 +16,9 @@ namespace auttr
 
         public void LoadNextScene()
         {
+            Time.timeScale = 1;
             SceneManager.LoadScene("Game");
+            
         }
         public void ExitGame()
         {

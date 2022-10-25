@@ -29,7 +29,7 @@ namespace auttr
         public int comboCount;
 
         float timer;
-        float time = 1.5f;
+        float time = 2.5f;
 
         Player player;
         TextMeshProUGUI attCountText;
@@ -72,9 +72,15 @@ namespace auttr
                 ani.SetBool(paraDead, true);
                 if (gameObject.CompareTag("Boss"))
                 {
-                    GameManager.Instance.totalScore += 3000;
-                    GameManager.Instance.isWin = true;
-                    GameManager.Instance.FinishGame();
+                    if (timer > time)
+                    {
+
+                        timer = 0;
+                        Destroy(gameObject);
+                        GameManager.Instance.isWin = true;
+                        GameManager.Instance.FinishGame();
+                    }
+
                 }
                 else
                 {
@@ -82,7 +88,6 @@ namespace auttr
                     {
                         timer = 0;
                         Destroy(gameObject);
-                        GameManager.Instance.totalScore += 500;
                         GameManager.Instance.FinishWave();
                     }
 
@@ -97,6 +102,7 @@ namespace auttr
             attCountText.text = ((int)attackCd).ToString();
             if (attackCd <= 0)
             {
+
                 attackCd = attackCdSet;
                 ani.SetTrigger(paraAtt);
                 player.GetHurt(attackDamage);

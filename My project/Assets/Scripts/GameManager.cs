@@ -201,9 +201,10 @@ namespace auttr
         /// </summary>
         public void FinishGame()
         {
+            audioSourceFall.enabled = false;
             imageWin.SetActive(true);
             playerInput.enabled = false;
-
+            Time.timeScale = 0;
             finishScoreText.text = "Score: " + totalScore * 10;
 
             if (!isTooHeigh)
@@ -220,8 +221,9 @@ namespace auttr
             else
             {
                 finishGameText.text = "ㅣ값값값값값값값값값값값짦";
+
             }
-            Time.timeScale = 0;
+
         }
 
         public void FinishWave()
@@ -230,10 +232,10 @@ namespace auttr
             holdCount++;
             // tetromino.GetComponent<Tetromino>().enabled = false;
             moveCover.SetActive(true);
+
             StartCoroutine(MoveGround());
-            wave++;
-            waveText.text = "�^쫂: " + wave + "/" + waveMax;
-            InstantiateMonster();
+
+
         }
         IEnumerator MoveGround()
         {
@@ -244,27 +246,37 @@ namespace auttr
             background.enabled = false;
             moveCover.SetActive(false);
             // tetromino.GetComponent<Tetromino>().enabled = true;
-            SpawnTetromino();
+            wave++;
+            if (wave != 3) SpawnTetromino();
+            waveText.text = "�^쫂: " + wave + "/" + waveMax;
+            InstantiateMonster();
             StopCoroutine(MoveGround());
+
         }
         void InstantiateMonster()
         {
-            Instantiate(mosters[wave - 1]);
+
             if (wave == 3)
             {
                 StartCoroutine(BossComeIE());
 
             }
+            else
+            {
+                Instantiate(mosters[wave - 1]);
+            }
         }
         IEnumerator BossComeIE()
         {
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < 5; i++)
             {
                 bossCome.SetActive(true);
                 yield return new WaitForSeconds(0.1f);
                 bossCome.SetActive(false);
                 yield return new WaitForSeconds(0.1f);
             }
+            Instantiate(mosters[wave - 1]);
+            SpawnTetromino();
             StopCoroutine(BossComeIE());
 
         }
