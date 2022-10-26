@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
 namespace auttr
 {
@@ -37,7 +36,7 @@ namespace auttr
         public override void MoveLeft()
         {
             // transform.position += new Vector3(0, HEIGHT-transform.position.y-2, 0);
-            transform.position = GameManager.Instance.tetrominoIndexList[0].transform.position;
+            transform.position = new Vector3(GameManager.Instance.tetrominoIndexList[0].transform.position.x, GameManager.Instance.tetrominoIndexList[0].transform.position.y, 0.5f);
 
             base.MoveLeft();
             DropPosition();
@@ -46,14 +45,14 @@ namespace auttr
         public override void Rotate()
         {
             //transform.position += new Vector3(0, HEIGHT - transform.position.y-2, 0);
-            transform.position = GameManager.Instance.tetrominoIndexList[0].transform.position;
+            transform.position = new Vector3(GameManager.Instance.tetrominoIndexList[0].transform.position.x, GameManager.Instance.tetrominoIndexList[0].transform.position.y, 0.5f);
             base.Rotate();
             DropPosition();
         }
         public override void MoveRight()
         {
             //transform.position += new Vector3(0, HEIGHT - transform.position.y-2, 0);
-            transform.position = GameManager.Instance.tetrominoIndexList[0].transform.position;
+            transform.position = new Vector3(GameManager.Instance.tetrominoIndexList[0].transform.position.x, GameManager.Instance.tetrominoIndexList[0].transform.position.y, 0.5f);
             base.MoveRight();
             DropPosition();
         }

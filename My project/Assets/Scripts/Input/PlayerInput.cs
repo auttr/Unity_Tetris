@@ -1,12 +1,11 @@
 using System.Collections;
-using System.Collections.Generic;
-using System.Security.Cryptography.X509Certificates;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
 
 public class PlayerInput : MonoBehaviour, InputActions.IGameplayActions
 {
+
     public static event UnityAction onMoveLeft = delegate { };
     public static event UnityAction onMoveRight = delegate { };
     public static event UnityAction onDrop = delegate { };
@@ -105,7 +104,7 @@ public class PlayerInput : MonoBehaviour, InputActions.IGameplayActions
     {
         if (context.performed)
         {
-           onInstantDrop.Invoke();
+            onInstantDrop.Invoke();
         }
     }
 

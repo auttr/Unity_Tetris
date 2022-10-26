@@ -8,6 +8,7 @@ namespace auttr
 {
     public class GameManager : MonoBehaviour
     {
+       
         public float AutoDropTime => autoDropTime;
         public static GameManager Instance;
         [SerializeField] GameObject[] tetrominoPrefabs;
@@ -54,6 +55,7 @@ namespace auttr
         private void Awake()
         {
             Instance = this;
+ 
             SpawnTetromino();
             SpawnTetromino();
             SpawnTetromino();
@@ -105,7 +107,7 @@ namespace auttr
 
 
                 //生成下墜預覽方塊
-                Instantiate(ghostPrefabs[randList[0]], new Vector3(tetrominoSpawnerTransform.position.x, tetrominoSpawnerTransform.position.y, 0.2f), Quaternion.identity);
+                Instantiate(ghostPrefabs[randList[0]], new Vector3(tetrominoSpawnerTransform.position.x, tetrominoSpawnerTransform.position.y, 0.5f), Quaternion.identity);
                 //生成方塊
                 tetromino = Instantiate(tetrominoPrefabs[randList[0]], tetrominoSpawnerTransform.position, Quaternion.identity);
 

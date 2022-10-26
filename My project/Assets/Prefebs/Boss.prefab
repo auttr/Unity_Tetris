@@ -830,8 +830,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hpSet: 300
-  attackCdSet: 4
-  attackDamage: 10
+  attackCdSet: 5
+  attackDamage: 5
   a: 0
   hurtCount: 0
   comboCount: 0

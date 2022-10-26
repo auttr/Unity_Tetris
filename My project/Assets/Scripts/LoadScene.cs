@@ -11,6 +11,7 @@ namespace auttr
         public bool isPause = true;
         private void Awake()
         {
+            Screen.SetResolution(410, 720, false);
             playerInput = FindObjectOfType<PlayerInput>();
         }
 
